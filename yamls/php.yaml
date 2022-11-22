@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asses1-php
+  labels:
+    tier: asses1-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: asses1-php
+      tier: asses1-backend
+  template:
+    metadata:
+      labels:
+        app: asses1-php
+        tier: asses1-backend
+    spec:
+      volumes:
+      - name: asses1-code
+        persistentVolumeClaim:
+          claimName: asses1-code
+      containers:
+      - name: php
+        image: php:7-fpm
+        volumeMounts:
+        - name: asses1-code
+          mountPath: /asses1-code
+      initContainers:
+      - name: code-install
+        image: busybox
+        volumeMounts:
+        - name: asses1-code
+          mountPath: /asses1-code
+        command:
+        - wget
+        - "-O"
+        - "/asses1-code/index.php"
+        - https://raw.githubusercontent.com/do-community/php-kubernetes/master/index.php
